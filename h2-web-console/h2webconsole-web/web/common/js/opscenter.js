@@ -5,11 +5,12 @@
 OpsCenter.OpsService = OpsCenter.Host + '/service/ops_service';
 OpsCenter.AdminService = OpsCenter.Host + '/service/admin_service';
 OpsCenter.QueryService = OpsCenter.Host + '/service/query_service';
+OpsCenter.DatabaseService = OpsCenter.Host + '/service/database_service';
 
 OpsService = Lealone.getService("ops_service");
 AdminService = Lealone.getService("admin_service");
 QueryService = Lealone.getService("query_service");
-
+DatabaseService = Lealone.getService("database_service");
 
 OpsCenter.i18n = { 
     data() { return { text: {} } },
@@ -23,12 +24,11 @@ OpsCenter.i18n = {
         app.mixin(this);
     },
     loadAndMount(app, appName) {
-        axios.get(OpsCenter.OpsService + '/read_translations')
-        .then(response => {
-            var text = response.data.text;
+        OpsService.readTranslations("zh_CN", data => {
+            var text = data.text;
             var newText = OpsCenter.i18n.parse(text);
             app.mixin({
-                data() { return { txt: text,  text: newText } },
+                data() { return { i18n: text,  text: newText } },
             });
             Lealone.loadServices(services => {
                 // console.log(services);
@@ -63,7 +63,7 @@ OpsCenter.i18n = {
             }, newText);
         }
         // 支持两种访问方式:
-        // {{ txt['toolbar.autoSelect.on'] }}
+        // {{ i18n['toolbar.autoSelect.on'] }}
         // {{ text.toolbar.autoSelect }}
         // 因为vue不能像这样使用{{ text.toolbar.autoSelect.on }}
         return newText;
@@ -74,7 +74,7 @@ var mount = function(app, appName) {
     app.mixin({
         methods: {
             logout() {
-                AdminService.logout(_=>(location.href = "/admin/index.html"));
+                OpsService.logout(lealone.currentUser, _=>(location.href = "/admin/index.html"));
             }
         }
     });

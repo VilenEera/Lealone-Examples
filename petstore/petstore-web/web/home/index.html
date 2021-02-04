@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Welcome to Petstore!</title>
-  <script src="/common/js/plugins/vue-3.0.0.js"></script>
-  <script src="/common/js/plugins/axios-0.21.1.js"></script>
+  <title>Welcome to PetStore!</title>
+  <script src="/common/js/plugins/vue-2.6.12.js"></script>
+  <script src="/common/js/plugins/axios.min-0.21.1.js"></script>
+  <script src="/common/js/plugins/sockjs.min-1.1.2.js"></script>
   <script src="/common/js/plugins/lealone-5.0.0.js"></script>
   <script src="/common/js/petstore.js"></script>
   <link rel="stylesheet" href="/common/css/petstore-common.css">
@@ -18,7 +19,7 @@
     <td height="258" valign="top">
     <table border="0" cellpadding="0" cellspacing="0" width="100%">
       <tr>
-        <td><a href="/"><img src="/home/img/logo_petstore_big.png"/></a></td>
+        <td><a href="/home/index.html"><img src="/home/img/logo_petstore_big.png"/></a></td>
       </tr>
       <tr>
         <td valign="top">&nbsp;</td>
@@ -32,17 +33,19 @@
     </td>
     <td><img src="/home/img/dot_transparent.png" width="30"/></td>
     <td width="100%" valign="top">
-      <div th:replace="/home/fragment/top-no-logo.html :: top-no-logo"></div>
+      <div v-replace="/home/template/layout/top-no-logo.html"></div>
       <table width="100%"  border="0" cellspacing="0" cellpadding="0">
         <tr valign="bottom">
-          <td width="10" align="left"><div th:replace="/home/fragment/tabs.html :: tabs"></div></td>
+          <td width="10" align="left"><div v-replace="/home/template/layout/tabs.html"></div></td>
         </tr>
         <tr>
           <td>
             <table border="0" cellpadding="0" cellspacing="10" width="100%" class="box">
               <tr align="left">
                 <td width="100%">
-                  <category-list/>
+                  <keep-alive>
+                    <component :is="currentComponent"/>
+                  </keep-alive>
                 </td>
               </tr>
             </table>
@@ -53,26 +56,32 @@
   </tr>
   <tr>
     <td colspan="3" valign="top">
-      <div th:replace="/home/fragment/footer.html :: footer"></div>
+      <div v-replace="/home/template/layout/footer.html"></div>
     </td>
   </tr>
 </table>
 </div>
 
-<template id="login" th:insert="/user/fragment/login.html :: login"/>
-<template id="category-list" th:insert="/store/fragment/category-list.html :: category-list"/>
-<template id="petstore-nav" th:insert="/home/fragment/nav.html :: nav"/>
+<template id="category-list" v-insert="/home/template/shopping/category-list.html"/>
+<template id="item-list" v-insert="/home/template/shopping/item-list.html"/>
+<template id="view-cart" v-insert="/home/template/shopping/view-cart.html"/>
+<template id="login" v-insert="/user/template/login.html"/>
 
 <script src="/store/js/category-list.js"></script>
-<script src="/user/js/login.js"></script>
+<script src="/store/js/item-list.js"></script>
+<script src="/home/js/view-cart.js"></script>
+<script src="/user/js/hooks.js"></script>
 <script>
-    const app = Lealone.createVueApp("home", "login"); 
+    const app = Lealone.createVueApp("home", "category-list"); 
 
-    Lealone.component(app, 'login', userLogin);
-    Lealone.component(app, 'category-list', storeCategoryList);
-    Lealone.component(app, 'petstore-nav', userLogin);
+    Lealone.component(app, 'login', 'login', UserService);
+    
+    //Lealone.component(app, 'category-list', {methodName: 'getAllCategories', init: true, fields: 'categories'}, StoreService);
+    Lealone.component(app, 'category-list', "getAllCategories", storeCategoryList, StoreService);
+    Lealone.component(app, 'item-list', 'getAllProductItems', storeItemlist, StoreService);
+    Lealone.component(app, 'view-cart', viewCart, ViewCartService); 
 
-    app.mount('#homeApp')
+    mount(app, '#homeApp');
 </script>
 
 </body>

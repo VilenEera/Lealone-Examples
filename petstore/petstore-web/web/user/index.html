@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Petstore Sample</title>
-  <script src="/common/js/plugins/vue-3.0.0.js"></script>
-  <script src="/common/js/plugins/axios-0.21.1.js"></script>
+  <title>PetStore Sample</title>
+  <script src="/common/js/plugins/vue-2.6.12.js"></script>
+  <script src="/common/js/plugins/axios.min-0.21.1.js"></script>
+  <script src="/common/js/plugins/sockjs.min-1.1.2.js"></script>
   <script src="/common/js/plugins/lealone-5.0.0.js"></script>
   <script src="/common/js/petstore.js"></script>
   <link rel="stylesheet" href="/common/css/petstore-common.css">
@@ -15,7 +16,7 @@
 <div id="userApp">
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td><div th:replace="/home/fragment/top.html :: top"></div></td>
+    <td><div v-replace="/home/template/layout/top.html"></div></td>
   </tr>
   <tr>
     <td>
@@ -25,31 +26,26 @@
     </td>
   </tr>
   <tr>
-    <td><div th:replace="/home/fragment/footer.html :: footer"></div></td>
+    <td><div v-replace="/home/template/layout/footer.html"></div></td>
   </tr>
 </table>
 </div>
 
-<template id="login" th:insert="/user/fragment/login.html :: login"/>
-<template id="account" th:insert="/user/fragment/account.html :: account"/>
-<template id="register" th:insert="/user/fragment/register.html :: register"/>
-<template id="register-account" th:insert="/user/fragment/register-account.html :: register-account"/>
-<template id="petstore-nav" th:insert="/home/fragment/nav.html :: nav"/>
+<template id="login" v-insert="/user/template/login.html"/>
+<template id="account" v-insert="/user/template/account.html"/>
+<template id="register" v-insert="/user/template/register.html"/>
+<template id="register-account" v-insert="/user/template/register-account.html"/>
 
-<script src="/user/js/login.js"></script>
-<script src="/user/js/account.js"></script>
-<script src="/user/js/register.js"></script>
-<script src="/user/js/register-account.js"></script>
+<script src="/user/js/hooks.js"></script>
 <script>
     const app = Lealone.createVueApp("user", "login"); //打开user子应用时，默认显示login页
     
-    Lealone.component(app, 'login', userLogin);
-    Lealone.component(app, 'account', userAccount);
-    Lealone.component(app, 'register', userRegister);
-    Lealone.component(app, 'register-account', userRegisterAccount);
-    Lealone.component(app, 'petstore-nav', userLogin);
+    Lealone.component(app, 'login', 'login', UserService);
+    Lealone.component(app, 'account', {methodName: 'getUser', init: true, fields: 'account,user'}, UserService);
+    Lealone.component(app, 'register', 'register', UserService);
+    Lealone.component(app, 'register-account', 'update', UserService);
 
-    app.mount('#userApp')
+    mount(app, '#userApp')
 </script>
 
 </body>

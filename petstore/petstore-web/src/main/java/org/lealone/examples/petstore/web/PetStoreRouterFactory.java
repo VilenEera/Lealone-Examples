@@ -21,16 +21,13 @@ import java.io.File;
 import java.util.Map;
 import java.util.UUID;
 
-import org.lealone.examples.petstore.web.thymeleaf.ThymeleafTemplateEngineImpl;
 import org.lealone.server.http.HttpRouterFactory;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.common.template.TemplateEngine;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.ext.web.sstore.SessionStore;
@@ -50,7 +47,7 @@ public class PetStoreRouterFactory extends HttpRouterFactory {
         // 如果想处理UserServiceImpl.login的结果，可以像下面的sendHttpServiceResponse方法那样做
         router.route("/user/logout").handler(routingContext -> {
             // routingContext.session().remove("currentUser");
-            // routingContext.session().remove("car_id");
+            // routingContext.session().remove("cart_id");
             routingContext.redirect("/home/index.html");
         });
     }
@@ -81,41 +78,18 @@ public class PetStoreRouterFactory extends HttpRouterFactory {
         });
     }
 
-    private void setDevelopmentEnvironmentRouter(Map<String, String> config, Vertx vertx, Router router) {
-        if (!isDevelopmentEnvironment(config))
-            return;
-
-        System.setProperty("vertxweb.environment", "development");
-        router.routeWithRegex(".*/fragment/.*").handler(routingContext -> {
-            routingContext.fail(404);// 不允许访问Thymeleaf的fragment文件
-        });
-
-        String webRoot = config.get("web_root");
-        TemplateEngine templateEngine = new ThymeleafTemplateEngineImpl(vertx, webRoot);
-        // 用正则表达式判断路径是否以“.html”结尾（不区分大小写）
-        router.routeWithRegex(".*\\.(?i)html").handler(routingContext -> {
-            JsonObject jsonObject = new JsonObject();
-            // String currentUser = routingContext.session().get("currentUser");
-            // if (currentUser != null) {
-            // jsonObject.put("currentUser", currentUser);
-            // }
-            String file = routingContext.request().path();
-            render(templateEngine, routingContext, jsonObject, file);
-        });
-    }
-
     @Override
     protected void setHttpServiceHandler(Map<String, String> config, Vertx vertx, Router router) {
         setFileUploadHandler(config, vertx, router);
 
         // 提取购物车ID用于调用后续的购物车服务
-        router.route("/service/car_service/*").handler(routingContext -> {
-            String car = routingContext.session().get("car_id");
-            if (car == null) {
-                car = "car-" + UUID.randomUUID();
-                routingContext.session().put("car_id", car);
+        router.route("/service/view_cart_service/*").handler(routingContext -> {
+            String cartId = routingContext.session().get("cart_id");
+            if (cartId == null) {
+                cartId = "cart-" + UUID.randomUUID();
+                routingContext.session().put("cart_id", cartId);
             }
-            routingContext.request().params().set("car_id", car);
+            routingContext.request().params().set("cart_id", cartId);
             routingContext.next();
         });
 
@@ -139,15 +113,6 @@ public class PetStoreRouterFactory extends HttpRouterFactory {
                 break;
             }
             routingContext.next();
-        });
-    }
-
-    private static void render(TemplateEngine templateEngine, RoutingContext routingContext, JsonObject context,
-            String templateFileName) {
-        templateEngine.render(context, templateFileName).onSuccess(buffer -> {
-            routingContext.response().putHeader("Content-Type", "text/html; charset=utf-8").end(buffer);
-        }).onFailure(cause -> {
-            routingContext.fail(cause);
         });
     }
 }

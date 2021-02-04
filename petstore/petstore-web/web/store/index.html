@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Petstore Sample</title>
-  <script src="/common/js/plugins/vue-3.0.0.js"></script>
-  <script src="/common/js/plugins/axios-0.21.1.js"></script>
+  <title>PetStore Sample</title>
+  <script src="/common/js/plugins/vue-2.6.12.js"></script>
+  <script src="/common/js/plugins/axios.min-0.21.1.js"></script>
+  <script src="/common/js/plugins/sockjs.min-1.1.2.js"></script>
   <script src="/common/js/plugins/lealone-5.0.0.js"></script>
   <script src="/common/js/petstore.js"></script>
   <link rel="stylesheet" href="/common/css/petstore-common.css">
@@ -15,7 +16,7 @@
 <div id="storeApp">
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td><div th:replace="/home/fragment/top.html :: top"></div></td>
+    <td><div v-replace="/home/template/layout/top.html"></div></td>
   </tr>
   <tr>
     <td align="center">
@@ -31,36 +32,26 @@
     </td>
   </tr>
   <tr>
-    <td><div th:replace="/home/fragment/footer.html :: footer"></div></td>
+    <td><div v-replace="/home/template/layout/footer.html"></div></td>
   </tr>
 </table>
 </div>
 
-<template id="category-list" th:insert="/store/fragment/category-list.html :: category-list"/>
-<template id="item-list" th:insert="/store/fragment/item-list.html :: item-list"/>
-<template id="view-cart" th:insert="/store/fragment/view-cart.html :: view-cart"/>
-<template id="edit-category-list" th:insert="/store/fragment/edit/category-list.html :: edit-category-list"/>
-<template id="edit-item-list" th:insert="/store/fragment/edit/item-list.html :: edit-item-list"/>
-<template id="add-product" th:insert="/store/fragment/edit/add-product.html :: add-product"/>
-<template id="petstore-nav" th:insert="/home/fragment/nav.html :: nav"/>
+<template id="category-list" v-insert="/store/template/category-list.html"/>
+<template id="item-list" v-insert="/store/template/item-list.html"/>
+<template id="add-product" v-insert="/store/template/add-product.html"/> 
 
 <script src="/store/js/category-list.js"></script>
 <script src="/store/js/item-list.js"></script>
 <script src="/store/js/add-product.js"></script>
-<script src="/store/js/view-cart.js"></script>
-<script src="/user/js/login.js"></script>
 <script>
-    const app = Lealone.createVueApp("store", "edit-category-list"); //打开store子应用时，默认显示edit-category-list页
+    const app = Lealone.createVueApp("store", "category-list"); //打开store子应用时，默认显示category-list页
 
-    Lealone.component(app, 'category-list', storeCategoryList);
-    Lealone.component(app, 'item-list', storeItemlist, storeViewCart);
-    Lealone.component(app, 'view-cart', storeViewCart);
-    Lealone.component(app, 'edit-category-list', storeCategoryList);
-    Lealone.component(app, 'edit-item-list', storeItemlist);
-    Lealone.component(app, 'add-product', storeAddProduct);
-    Lealone.component(app, 'petstore-nav', userLogin);
+    Lealone.component(app, 'category-list', "getAllCategories", storeCategoryList, StoreService);
+    Lealone.component(app, 'item-list', 'getAllProductItems', storeItemlist, StoreService);
+    Lealone.component(app, 'add-product', storeAddProduct); 
 
-    app.mount('#storeApp')
+    mount(app, '#storeApp')
 </script>
 
 </body>

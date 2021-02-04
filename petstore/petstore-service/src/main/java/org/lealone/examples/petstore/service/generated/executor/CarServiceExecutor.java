@@ -3,7 +3,7 @@ package org.lealone.examples.petstore.service.generated.executor;
 import java.util.Map;
 import org.lealone.db.service.ServiceExecutor;
 import org.lealone.db.value.*;
-import org.lealone.examples.petstore.service.CarServiceImpl;
+import org.lealone.examples.petstore.service.ViewCartServiceImpl;
 import org.lealone.orm.json.JsonArray;
 
 /**
@@ -13,7 +13,7 @@ import org.lealone.orm.json.JsonArray;
  */
 public class CarServiceExecutor implements ServiceExecutor {
 
-    private final CarServiceImpl s = new CarServiceImpl();
+    private final ViewCartServiceImpl s = new ViewCartServiceImpl();
 
     @Override
     public Value executeService(String methodName, Value[] methodArgs) {
